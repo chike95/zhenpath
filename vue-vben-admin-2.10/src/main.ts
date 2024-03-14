@@ -22,7 +22,7 @@ async function bootstrap() {
   const app = createApp(App);
 
   // Configure store
-  // 配置 store
+  // 配置 store - 全局共享状态
   setupStore(app);
 
   // Initialize internal system configuration
@@ -48,7 +48,7 @@ async function bootstrap() {
   setupRouterGuard(router);
 
   // Register global directive
-  // 注册全局指令
+  // 注册全局指令 - 权限相关
   setupGlobDirectives(app);
 
   // Configure global error handling

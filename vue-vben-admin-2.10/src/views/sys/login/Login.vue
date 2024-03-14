@@ -61,6 +61,7 @@
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useLocaleStore } from '/@/store/modules/locale';
 
+  // 过期时间
   defineProps({
     sessionTimeout: {
       type: Boolean,

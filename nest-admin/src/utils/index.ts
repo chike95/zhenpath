@@ -1,14 +1,20 @@
 export function success(data, msg) {
   return {
     code: 0,
-    data,
-    msg,
+    result: data,
+    message: msg,
   };
 }
 
 export function error(msg) {
   return {
     code: -1,
-    msg,
+    message: msg,
   };
+}
+
+export function wrapperResponse(promise, msg) {
+  return promise
+    .then((data) => success(data, msg))
+    .catch((err) => error(err).message);
 }
