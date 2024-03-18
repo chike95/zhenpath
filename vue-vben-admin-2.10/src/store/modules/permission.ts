@@ -13,16 +13,16 @@ import projectSetting from '/@/settings/projectSetting';
 
 import { PermissionModeEnum } from '/@/enums/appEnum';
 
-import { asyncRoutes } from '/@/router/routes';
 import { ERROR_LOG_ROUTE, PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
 
 import { filter } from '/@/utils/helper/treeHelper';
 
-import { getMenuList } from '/@/api/sys/menu';
+import { getMenuList, getAllMenu } from '/@/api/sys/menu';
 import { getPermCode } from '/@/api/sys/user';
 
 import { useMessage } from '/@/hooks/web/useMessage';
 import { PageEnum } from '/@/enums/pageEnum';
+import { ROUTE_MAP } from '/@/router/route-map';
 
 interface PermissionState {
   // Permission code list
@@ -168,11 +168,60 @@ export const usePermissionStore = defineStore({
         return;
       };
 
+      // 8-5：后端下发菜单
+      const wrapperRoteComponent = (routes) => {
+        return routes.map((route) => {
+          if (route.children && route.children.length > 0) {
+            route.children = wrapperRoteComponent(route.children);
+          }
+          route.component = ROUTE_MAP[route.name];
+          return route;
+        });
+      };
+
+      const parseRouteRoles = (routes) => {
+        return routes.map((route) => {
+          if (route.children && route.children.length > 0) {
+            route.children = parseRouteRoles(route.children);
+          }
+          if (route?.meta?.roles) {
+            try {
+              route.meta.roles = JSON.parse(route.meta.roles);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+          return route;
+        });
+      };
+
+      const addPageNotFoundAtFirst = (routes) => {
+        routes.unshift(PAGE_NOT_FOUND_ROUTE);
+        return routes;
+      };
+
+      const getAllMenuData = () => {
+        return getAllMenu();
+      };
+
+      let backendRouteList;
+      try {
+        // backendRouteList = JSON.parse(``);
+        backendRouteList = await getAllMenuData();
+        backendRouteList = JSON.parse(backendRouteList);
+        console.log(backendRouteList);
+        backendRouteList = wrapperRoteComponent(backendRouteList);
+        backendRouteList = parseRouteRoles(backendRouteList);
+        backendRouteList = addPageNotFoundAtFirst(backendRouteList);
+      } catch (e) {
+        console.log(e);
+      }
+
       switch (permissionMode) {
         // 角色权限
         case PermissionModeEnum.ROLE:
           // 对非一级路由进行过滤
-          routes = filter(asyncRoutes, routeFilter);
+          routes = filter(backendRouteList, routeFilter);
           // 对一级路由根据角色权限过滤
           routes = routes.filter(routeFilter);
           // Convert multi-level routing to level 2 routing
@@ -183,7 +232,7 @@ export const usePermissionStore = defineStore({
         // 路由映射， 默认进入该case
         case PermissionModeEnum.ROUTE_MAPPING:
           // 对非一级路由进行过滤
-          routes = filter(asyncRoutes, routeFilter);
+          routes = filter(backendRouteList, routeFilter);
           // 对一级路由再次根据角色权限过滤
           routes = routes.filter(routeFilter);
           // 将路由转换成菜单

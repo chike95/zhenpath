@@ -109,8 +109,10 @@ export const useUserStore = defineStore({
       if (sessionTimeout) {
         this.setSessionTimeout(false);
       } else {
+        // 权限全局配置
         const permissionStore = usePermissionStore();
         if (!permissionStore.isDynamicAddedRoute) {
+          // 动态生成权限列表
           const routes = await permissionStore.buildRoutesAction();
           routes.forEach((route) => {
             router.addRoute(route as unknown as RouteRecordRaw);
@@ -125,9 +127,11 @@ export const useUserStore = defineStore({
     async getUserInfoAction(): Promise<UserInfo | null> {
       if (!this.getToken) return null;
       const userInfo = await getUserInfo();
-      const { roles = [] } = userInfo;
+      const { role = [] } = userInfo;
+      console.log(role);
+      const roles = JSON.parse(role);
       if (isArray(roles)) {
-        const roleList = roles.map((item) => item.value) as RoleEnum[];
+        const roleList = roles.map((item) => item) as RoleEnum[];
         this.setRoleList(roleList);
       } else {
         userInfo.roles = [];
