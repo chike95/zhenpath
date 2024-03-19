@@ -17,12 +17,13 @@ import { ERROR_LOG_ROUTE, PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
 
 import { filter } from '/@/utils/helper/treeHelper';
 
-import { getMenuList, getAllMenu } from '/@/api/sys/menu';
+import { getMenuList, getAllMenu, getActiveMenu } from '/@/api/sys/menu';
 import { getPermCode } from '/@/api/sys/user';
 
 import { useMessage } from '/@/hooks/web/useMessage';
 import { PageEnum } from '/@/enums/pageEnum';
 import { ROUTE_MAP } from '/@/router/route-map';
+import menu from 'mock/sys/menu';
 
 interface PermissionState {
   // Permission code list
@@ -200,15 +201,40 @@ export const usePermissionStore = defineStore({
         return routes;
       };
 
+      const convertMenuTree = (menuList) => {
+        const menus = [];
+        menuList.forEach((menu) => {
+          if (menu.meta) {
+            try {
+              menu.meta = JSON.parse(menu.meta);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+          if (menu.pid === 0) {
+            menus.push(menu);
+          } else {
+            const parentMenu = menuList.find((m) => m.id === menu.pid);
+            if (!parentMenu.children) {
+              parentMenu.children = [];
+            }
+            parentMenu.children.push(menu);
+          }
+        });
+        return menus;
+      };
       const getAllMenuData = () => {
-        return getAllMenu();
+        return getActiveMenu().then((menu) => {
+          console.log(menu);
+          return convertMenuTree(menu);
+        });
       };
 
       let backendRouteList;
       try {
         // backendRouteList = JSON.parse(``);
         backendRouteList = await getAllMenuData();
-        backendRouteList = JSON.parse(backendRouteList);
+        // backendRouteList = JSON.parse(backendRouteList);
         console.log(backendRouteList);
         backendRouteList = wrapperRoteComponent(backendRouteList);
         backendRouteList = parseRouteRoles(backendRouteList);

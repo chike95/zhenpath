@@ -25,6 +25,14 @@ const permission: AppRouteModule = {
       },
       children: [
         {
+          path: 'menu',
+          name: 'PermissionMenu',
+          component: () => import('/@/views/permission/menu/index.vue'),
+          meta: {
+            title: t('routes.demo.permission.menu'),
+          },
+        },
+        {
           path: 'page',
           name: 'FrontPageAuth',
           component: () => import('/@/views/demo/permission/front/index.vue'),

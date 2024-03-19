@@ -18,7 +18,7 @@ import { MenuModule } from './modules/menu/menu.module';
       database: 'book-admin',
       autoLoadEntities: true,
       // entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      // synchronize: true,
+      synchronize: true,
     }),
     AuthModule,
     UserModule,
