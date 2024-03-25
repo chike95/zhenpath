@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { MENU_LIST } from './menu.data';
+// import { MENU_LIST } from './menu.data';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Menu } from './menu.entity';
@@ -25,5 +25,20 @@ export class MenuService {
     const sql = 'select * from menu where active = 1 order by id asc ';
 
     return this.menuRepository.query(sql);
+  }
+
+  create(body) {
+    console.log(body);
+    const data = body.data || body;
+    data.redirect = data.redirect || '';
+    data.meta = data.meta || '';
+    data.pid = data.pid || 0;
+    return this.menuRepository.save(data);
+  }
+
+  update(body) {
+    const id = body?.data?.id || body.id;
+    const data = body.data || body;
+    return this.menuRepository.update(id, data);
   }
 }

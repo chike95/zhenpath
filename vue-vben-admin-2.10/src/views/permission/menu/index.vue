@@ -12,15 +12,15 @@
                 icon: 'clarity:note-edit-line',
                 onClick: handleEdit.bind(null, record),
               },
-              {
-                icon: 'ant-design:delete-outlined',
-                color: 'error',
-                popConfirm: {
-                  title: '是否确认删除',
-                  placement: 'left',
-                  confirm: handleDelete.bind(null, record),
-                },
-              },
+              // {
+              //   icon: 'ant-design:delete-outlined',
+              //   color: 'error',
+              //   popConfirm: {
+              //     title: '是否确认删除',
+              //     placement: 'left',
+              //     confirm: handleDelete.bind(null, record),
+              //   },
+              // },
             ]"
           />
         </template>
@@ -77,6 +77,7 @@
       }
 
       function handleEdit(record: Recordable) {
+        record.active = record.active + '';
         openDrawer(true, {
           record,
           isUpdate: true,
